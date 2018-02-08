@@ -1,0 +1,98 @@
+/* Setting up the build environmet
+ * by declaring dependencies that are required for running gradle with this build file */
+buildscript {
+    ext {
+        springBootVersion = '2.0.0.BUILD-SNAPSHOT'
+    }
+
+    repositories {
+        jcenter()
+        maven { url "http://repo.spring.io/snapshot" }
+        maven { url "http://repo.spring.io/milestone" }
+    }
+    
+    dependencies {
+        classpath "org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}"
+    }
+}
+
+apply plugin: "java"
+apply plugin: "eclipse"
+apply plugin: "org.springframework.boot"
+apply plugin: "io.spring.dependency-management"
+
+
+//Java version
+sourceCompatibility = 1.8
+targetCompatibility = 1.8 
+
+
+defaultTasks "bootRun"
+
+
+/* Configuration of the application package */
+
+jar {
+    baseName = "spring-boot-jersey-sample"
+    version =  "0.0.1"
+}
+
+// In this section is declared where to find the dependencies of the project
+repositories {
+    // Using jcenter for resolving dependencies
+    jcenter()
+
+    // Alternatively use maven central
+    mavenCentral()
+    
+    // Repository for Spring libraries
+    maven { url "https://repo.spring.io/libs-release" }
+    maven { url "http://repo.spring.io/snapshot" }
+    maven { url "http://repo.spring.io/milestone" }
+}
+
+/* Definition of project dependencies */
+
+dependencies {
+    compile group:"org.springframework.boot", name:"spring-boot-starter-jersey" //version handled by spring-boot
+    compile group:"org.springframework.boot", name:"spring-boot-starter-tomcat" //version handled by spring-boot
+    compile group:"org.springframework.boot", name:"spring-boot-starter-log4j2" //version handled by spring-boot
+    
+    // Spring boot starter that help managing and monitoring the application
+    compile group:"org.springframework.boot", name:"spring-boot-starter-actuator" //version handled by spring-boot
+    
+    //TODO exclude this from production and test server building!!!
+    compile group:"org.springframework.boot", name:"spring-boot-devtools" //version handled by spring-boot
+    
+    compile group:"javax.servlet", name:"javax.servlet-api", version:"3.1.0"
+    compile group:"org.glassfish.jersey.containers", name:"jersey-container-servlet", version:"2.26"
+    compile group:"org.glassfish.jersey.inject", name:"jersey-hk2", version:"2.26"
+    compile group:"org.glassfish.jersey.ext", name:"jersey-spring4", version:"2.26"
+
+    compile group:"org.springframework", name:"spring-context" //version handled by spring-boot
+    compile group:"org.springframework", name:"spring-web" //version handled by spring-boot
+    
+    /* libraries for managing and accessing the persistent storage */
+    compile group:"org.springframework.data", name:"spring-data-jpa", version:"2.0.1.RELEASE"
+    compile group:"org.hibernate", name:"hibernate-core", version:"5.2.12.Final"
+    compile group: 'org.apache.tomcat', name: 'tomcat-jdbc', version: '9.0.1'
+    compile group: "com.h2database", name:"h2" //version handled by spring-boot
+    
+    /* Log4J will be used as logging library throughout the project */
+    compile group:"org.apache.logging.log4j", name:"log4j-api", version:"2.9.1"
+    compile group:"org.apache.logging.log4j", name:"log4j-core", version:"2.9.1"
+    // Include the SLF4J bridge to direct any logging implemented using the SLF4J API to Log4J
+    compile group:"org.apache.logging.log4j", name:"log4j-slf4j-impl", version:"2.9.1"
+    
+    compile group: "org.json", name: "json", version: "20180130"
+    compile group: "com.google.code.findbugs", name: "annotations", version: "3.0.0"
+    
+    /* libraries for testing only */
+    testCompile group:"org.springframework.boot", name:"spring-boot-starter-test" //version handled by spring-boot
+}
+
+// exclude transitive dependencies that interfere with manually defined dependencies
+configurations.all {
+   exclude group:"org.springframework.boot", module: "spring-boot-starter-logging"
+   exclude group:"ch.qos.logback", module:"logback-core"
+}
